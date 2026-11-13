@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/security-audit/findings-1.0.json",
+  "title": "Security audit findings",
+  "description": "Confirmed findings from one audit run. Only findings that passed evidence checks and the challenge stage belong here.",
+  "type": "object",
+  "required": ["schema_version", "run", "findings", "stats"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "run": {
+      "type": "object",
+      "required": ["id", "started_at", "finished_at", "target", "previous_run"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^audit-\\d{8}-\\d{6}$" },
+        "started_at": { "type": "string", "minLength": 10 },
+        "finished_at": { "type": "string", "minLength": 10 },
+        "target": { "type": "string", "minLength": 1 },
+        "git_commit": { "type": ["string", "null"] },
+        "previous_run": { "type": ["string", "null"] }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "included": { "type": "array", "items": { "type": "string" } },
+        "excluded": { "type": "array", "items": { "type": "string" } },
+        "limits": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "stats": {
+      "type": "object",
+      "required": ["candidates", "confirmed", "rejected", "carried_forward", "resolved_since_previous"],
+      "additionalProperties": false,
+      "properties": {
+        "candidates": { "type": "integer", "minimum": 0 },
+        "confirmed": { "type": "integer", "minimum": 0 },
+        "rejected": { "type": "integer", "minimum": 0 },
+        "carried_forward": { "type": "integer", "minimum": 0 },
+        "resolved_since_previous": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": [
+        "id", "title", "category", "severity", "confidence", "hunter", "cwe",
+        "locations", "entry_point", "description", "impact", "remediation",
+        "fingerprint", "verification"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^F-\\d{3,}$" },
+        "title": { "type": "string", "minLength": 5, "maxLength": 160 },
+        "category": {
+          "enum": [
+            "injection", "access_control", "business_logic", "authentication",
+            "client_side", "crypto_secrets", "misconfiguration", "other_suspicious"
+          ]
+        },
+        "severity": { "enum": ["critical", "high", "medium", "low", "info"] },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "hunter": { "type": "string", "minLength": 1 },
+        "cwe": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^CWE-\\d+$" }
+        },
+        "locations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/location" }
+        },
+        "entry_point": {
+          "type": "object",
+          "required": ["description", "reachability"],
+          "additionalProperties": false,
+          "properties": {
+            "description": { "type": "string", "minLength": 3 },
+            "reachability": {
+              "enum": ["unauthenticated", "authenticated", "privileged", "internal_only", "unknown"]
+            }
+          }
+        },
+        "data_flow": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string", "minLength": 20 },
+        "impact": { "type": "string", "minLength": 10 },
+        "remediation": { "type": "string", "minLength": 10 },
+        "fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "verification": {
+          "type": "object",
+          "required": ["evidence_check", "challenge"],
+          "additionalProperties": false,
+          "properties": {
+            "evidence_check": { "const": "passed" },
+            "challenge": {
+              "type": "object",
+              "required": ["outcome", "notes"],
+              "additionalProperties": false,
+              "properties": {
+                "outcome": { "enum": ["survived", "downgraded"] },
+                "notes": { "type": "string", "minLength": 5 }
+              }
+            }
+          }
+        },
+        "carried_from": { "type": ["string", "null"] }
+      }
+    },
+    "location": {
+      "type": "object",
+      "required": ["file", "start_line", "end_line", "snippet", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 },
+        "snippet": { "type": "string", "minLength": 8 },
+        "role": { "enum": ["source", "sink", "check", "config", "other"] }
+      }
+    }
+  }
+}

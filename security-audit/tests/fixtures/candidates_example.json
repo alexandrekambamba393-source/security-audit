@@ -1,0 +1,10 @@
+{"candidates":[
+ {"id":"H-1","title":"SQL built by concatenation","category":"injection","severity":"high","confidence":"high","hunter":"injection","cwe":["CWE-89"],
+  "locations":[{"file":"app/views.py","start_line":5,"end_line":5,"snippet":"conn.execute(\"SELECT * FROM users WHERE id = \" + user_id)","role":"sink"}]},
+ {"id":"H-2","title":"bad snippet","category":"client_side","severity":"medium","confidence":"low","hunter":"client_side","cwe":["CWE-79"],
+  "locations":[{"file":"app/client.js","start_line":1,"end_line":1,"snippet":"el.innerHTML = evil()","role":"sink"}]},
+ {"id":"H-3","title":"line off by two","category":"client_side","severity":"high","confidence":"high","hunter":"client_side","cwe":["CWE-79"],
+  "locations":[{"file":"app/client.js","start_line":1,"end_line":1,"snippet":"el.innerHTML = comment.body;","role":"sink"}]},
+ {"id":"H-4","title":"path escape","category":"injection","severity":"low","confidence":"low","hunter":"injection","cwe":["CWE-22"],
+  "locations":[{"file":"../etc/passwd","start_line":1,"end_line":1,"snippet":"root:x:0:0:root","role":"sink"}]}
+]}
